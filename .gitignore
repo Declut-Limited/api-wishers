@@ -1,0 +1,14 @@
+node_modules/
+dist/
+.env
+.env.*.local
+*.log
+coverage/
+.DS_Store
+CLAUDE.md
+scripts/*
+postman/*
+test/*
+test-realtime/
+review.md
+user-flow.md
