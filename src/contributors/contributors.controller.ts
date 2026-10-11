@@ -20,6 +20,14 @@ export class ContributorsController {
     return this.contributorsService.listMine(user.sub, query.page, query.limit);
   }
 
+  @Get('contributors/:id')
+  getOne(
+    @CurrentUser() user: AccessTokenPayload,
+    @Param('id', ParseObjectIdPipe) id: string,
+  ) {
+    return this.contributorsService.getMine(user.sub, id);
+  }
+
   @Get('wish-items/:id/contributors')
   listForWishItem(
     @CurrentUser() user: AccessTokenPayload,

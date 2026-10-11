@@ -39,8 +39,6 @@ export class RegisterDto {
   @MaxLength(20)
   referralCode?: string;
 
-  @IsOptional()
-  @IsString()
-  @MinLength(10)
-  pushToken?: string;
+  // No pushToken here: the app asks for notification permission after sign-in and sends the
+  // token to POST /notifications/register-token.
 }

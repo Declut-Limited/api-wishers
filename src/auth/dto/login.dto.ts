@@ -1,4 +1,4 @@
-import { IsOptional, IsString, MinLength } from 'class-validator';
+import { IsString, MinLength } from 'class-validator';
 
 export class LoginDto {
   // Email or phone number.
@@ -9,8 +9,6 @@ export class LoginDto {
   @IsString()
   password: string;
 
-  @IsOptional()
-  @IsString()
-  @MinLength(10)
-  pushToken?: string;
+  // No pushToken here: the app asks for notification permission after sign-in and sends the
+  // token to POST /notifications/register-token.
 }

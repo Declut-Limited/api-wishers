@@ -88,10 +88,6 @@ export class AuthService {
       await this.usersService.incrementReferralsCount(referrer._id.toString());
     }
 
-    if (dto.pushToken) {
-      await this.usersService.setPushToken(user._id.toString(), dto.pushToken);
-    }
-
     await this.auditLog.record({
       entityType: AuditEntityType.USER,
       entityId: user._id.toString(),
@@ -141,10 +137,6 @@ export class AuthService {
 
     // Checked after the password, so a wrong guess can't reveal an account's status.
     this.assertAccountIsUsable(user);
-
-    if (dto.pushToken) {
-      await this.usersService.setPushToken(user._id.toString(), dto.pushToken);
-    }
 
     await this.auditLog.record({
       entityType: AuditEntityType.USER,

@@ -21,6 +21,15 @@ export class ContributorsService {
     return this.paginate({ owner: ownerId }, page, limit);
   }
 
+  async getMine(ownerId: string, id: string) {
+    const contributor = await this.contributorModel.findById(id).exec();
+    if (!contributor) throw new NotFoundException('Contributor not found');
+    if (contributor.owner.toString() !== ownerId) {
+      throw new ForbiddenException('You do not own this contribution');
+    }
+    return this.mask(contributor);
+  }
+
   async listForWishItem(
     ownerId: string,
     wishItemId: string,

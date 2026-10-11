@@ -22,8 +22,9 @@ import { AuditEntityType } from '../audit-log/schemas/audit-log.schema';
 const INVITE_CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 const INVITE_CODE_LENGTH = 6;
 
+// _id, like every other record the API returns.
 export interface UserProfile {
-  id: string;
+  _id: string;
   name: string;
   email: string;
   phone?: string;
@@ -102,10 +103,6 @@ export class UsersService {
       .exec();
   }
 
-  async setPushToken(id: string, pushToken: string): Promise<void> {
-    await this.userModel.updateOne({ _id: id }, { pushToken }).exec();
-  }
-
   async setRefreshToken(
     id: string,
     refreshToken: { hashedToken: string; expiresAt: Date },
@@ -118,7 +115,6 @@ export class UsersService {
       .updateOne({ _id: id }, { $unset: { refreshToken: 1 } })
       .exec();
   }
-
   async setPassword(id: string, password: string): Promise<void> {
     await this.userModel.updateOne({ _id: id }, { password }).exec();
   }
@@ -184,7 +180,7 @@ export class UsersService {
 
   toProfile(user: UserDocument): UserProfile {
     return {
-      id: user._id.toString(),
+      _id: user._id.toString(),
       name: user.name,
       email: user.email,
       phone: user.phone,
