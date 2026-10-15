@@ -57,7 +57,13 @@ export class Contributor {
 
   @Prop()
   reference?: string;
+
+  // Set when the giver adds their name/photo/message after paying — that step is allowed once.
+  @Prop()
+  detailsAddedAt?: Date;
 }
 
 export const ContributorSchema = SchemaFactory.createForClass(Contributor);
 ContributorSchema.index({ owner: 1, createdAt: -1 });
+// The payment reference is how the public details step finds the gift; one gift per reference.
+ContributorSchema.index({ reference: 1 }, { unique: true, sparse: true });

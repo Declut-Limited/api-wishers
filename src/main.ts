@@ -17,6 +17,9 @@ async function bootstrap() {
 
   app.setGlobalPrefix('api');
   app.set('query parser', 'extended');
+  // Railway puts one proxy in front of us: trust its X-Forwarded-For so req.ip (what the rate
+  // limiter counts by) is each caller's own address, not the proxy's shared one.
+  app.set('trust proxy', 1);
   app.use(helmet());
   app.useBodyParser('json', { limit: '20mb' });
   app.enableCors({ origin: true, credentials: true });

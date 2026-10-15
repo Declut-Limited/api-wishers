@@ -9,6 +9,8 @@ CLAUDE.md
 scripts/*
 postman/*
 test/*
+*.spec.ts
+*.e2e-spec.ts
 test-realtime/
 review.md
 user-flow.md
