@@ -32,6 +32,9 @@ export const envValidationSchema = Joi.object({
   EMAIL_FROM: Joi.string().allow('').optional(),
   EMAIL_FROM_NAME: Joi.string().default('Wishers'),
 
+  // Paystack secret key (sk_test_… in development). Payment routes refuse to run without it.
+  PAYSTACK_SECRET_KEY: Joi.string().allow('').optional(),
+
   CLOUDINARY_CLOUD_NAME: Joi.string().allow('').optional(),
   CLOUDINARY_API_KEY: Joi.string().allow('').optional(),
   CLOUDINARY_API_SECRET: Joi.string().allow('').optional(),

@@ -19,6 +19,7 @@ import { AuditLogModule } from './audit-log/audit-log.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { WalletsModule } from './wallets/wallets.module';
 import { BankAccountsModule } from './bank-accounts/bank-accounts.module';
+import { PaymentsModule } from './payments/payments.module';
 import { AllExceptionsFilter } from './common/filters/http-exception.filter';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 
@@ -52,6 +53,7 @@ import { ResponseInterceptor } from './common/interceptors/response.interceptor'
     NotificationsModule,
     WalletsModule,
     BankAccountsModule,
+    PaymentsModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: ThrottlerGuard },

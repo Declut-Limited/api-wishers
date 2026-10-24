@@ -5,13 +5,15 @@ import {
   Get,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import type { AccessTokenPayload } from '../auth/interfaces/jwt-payload.interface';
 import { BankAccountsService } from './bank-accounts.service';
-import { BankAccountDto } from './dto/bank-account.dto';
+import { BankAccountDto, ResolveBankAccountDto } from './dto/bank-account.dto';
 
 @Controller()
 @UseGuards(JwtAuthGuard)
@@ -21,6 +23,13 @@ export class BankAccountsController {
   @Get('banks')
   listBanks() {
     return this.bankAccountsService.listBanks();
+  }
+
+  // Paystack account lookup; tight limit since Paystack rate-limits it too.
+  @Get('banks/resolve')
+  @Throttle({ default: { limit: 10, ttl: 60_000 } })
+  resolve(@Query() dto: ResolveBankAccountDto) {
+    return this.bankAccountsService.resolve(dto);
   }
 
   @Post('bank-accounts')

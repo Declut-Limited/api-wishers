@@ -5,13 +5,18 @@ export type TransactionDocument = HydratedDocument<Transaction>;
 
 export enum TransactionType {
   CONTRIBUTION = 'contribution',
-  WITHDRAWAL = 'withdrawal',
+  REFERRAL_EARNING = 'referral_earning',
 }
 
 export enum TransactionStatus {
   PENDING = 'pending',
   SUCCESS = 'success',
   FAILED = 'failed',
+}
+
+export enum SettlementStatus {
+  PENDING = 'pending',
+  SETTLED = 'settled',
 }
 
 @Schema({ _id: false })
@@ -26,7 +31,8 @@ class Receiver {
   accountName?: string;
 }
 
-// The user's money ledger. Written only by the server (payment verification, withdrawals).
+// The user's earnings ledger. Written only by the server once a payment is verified; wallet
+// balances can always be rebuilt from it.
 @Schema({ timestamps: true })
 export class Transaction {
   @Prop({
@@ -47,19 +53,43 @@ export class Transaction {
   })
   status: TransactionStatus;
 
-  // Naira credited to / debited from the wallet.
+  // Naira this user earns (their share of the gift).
   @Prop({ required: true })
   amount: number;
 
+  // Naira the giver gave towards the wish, before the split.
+  @Prop()
+  giftAmount?: number;
+
+  // Paystack's fee, paid by the giver on top.
   @Prop({ default: 0 })
   charges: number;
 
   @Prop({ default: 'NGN' })
   currency: string;
 
-  // Payment gateway reference; unique so a retried webhook can't record twice.
+  // Unique so a retried webhook can't record twice: the Paystack reference for the wisher's row,
+  // "{reference}:referral" for the referrer's.
   @Prop({ unique: true, sparse: true })
   reference?: string;
+
+  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Payment' })
+  payment?: Types.ObjectId;
+
+  // The Paystack subaccount this share settles to.
+  @Prop()
+  subaccountCode?: string;
+
+  @Prop({
+    type: String,
+    enum: Object.values(SettlementStatus),
+    default: SettlementStatus.PENDING,
+    index: true,
+  })
+  settlementStatus: SettlementStatus;
+
+  @Prop()
+  settledAt?: Date;
 
   @Prop()
   paidAt?: Date;

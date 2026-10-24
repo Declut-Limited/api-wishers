@@ -45,14 +45,17 @@ export class AppSettings {
   @Prop({ default: 10 })
   maxGoalAmountDigits: number;
 
-  @Prop({ default: 150 })
-  minWithdrawalAmount: number;
+  // Naira; smallest gift a giver can send.
+  @Prop({ default: 100 })
+  minContributionAmount: number;
 
-  @Prop({ default: 9 })
-  maxWithdrawalAmountDigits: number;
+  // Each gift is split at payment: the wisher's share, the referrer's share (only when the
+  // referrer has bank details), and Wishers keeps the rest.
+  @Prop({ default: 92.5 })
+  wisherSharePercentage: number;
 
-  @Prop({ default: 6 })
-  appWithdrawalPercentage: number;
+  @Prop({ default: 1 })
+  referrerSharePercentage: number;
 
   @Prop({ default: true })
   shouldDisplayConfetti: boolean;

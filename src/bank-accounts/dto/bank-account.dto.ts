@@ -1,4 +1,10 @@
-import { IsString, Matches, MaxLength, MinLength } from 'class-validator';
+import {
+  IsOptional,
+  IsString,
+  Matches,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
 
 export class BankAccountDto {
   @IsString()
@@ -10,9 +16,20 @@ export class BankAccountDto {
   @Matches(/^\d{10}$/, { message: 'accountNumber must be a 10-digit NUBAN' })
   accountNumber: string;
 
-  // Entered by the user — there's no account-name lookup.
+  // Ignored — the name comes from Paystack's account lookup. Still accepted so older app builds keep working.
+  @IsOptional()
   @IsString()
   @MinLength(2)
   @MaxLength(100)
-  accountName: string;
+  accountName?: string;
+}
+
+export class ResolveBankAccountDto {
+  @IsString()
+  @Matches(/^\d{3,6}$/, { message: 'bankCode must be a 3-6 digit bank code' })
+  bankCode: string;
+
+  @IsString()
+  @Matches(/^\d{10}$/, { message: 'accountNumber must be a 10-digit NUBAN' })
+  accountNumber: string;
 }

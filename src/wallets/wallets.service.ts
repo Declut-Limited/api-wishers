@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { ClientSession, Model } from 'mongoose';
 import { Wallet, WalletDocument } from './schemas/wallet.schema';
 
 @Injectable()
@@ -22,5 +22,37 @@ export class WalletsService {
 
   getMine(ownerId: string) {
     return this.ensureWallet(ownerId);
+  }
+
+  // A paid share: counts towards earnings and stays pending until Paystack settles it.
+  async recordEarning(
+    ownerId: string,
+    amount: number,
+    kind: 'contribution' | 'referral',
+    session?: ClientSession,
+  ): Promise<void> {
+    await this.walletModel
+      .updateOne(
+        { owner: ownerId },
+        {
+          $inc: {
+            allTimeBalance: amount,
+            pendingBalance: amount,
+            [kind === 'referral' ? 'referralEarnings' : 'contributedEarning']:
+              amount,
+          },
+        },
+        { upsert: true, session },
+      )
+      .exec();
+  }
+
+  async recordSettled(ownerId: string, amount: number): Promise<void> {
+    await this.walletModel
+      .updateOne(
+        { owner: ownerId },
+        { $inc: { pendingBalance: -amount, settledBalance: amount } },
+      )
+      .exec();
   }
 }

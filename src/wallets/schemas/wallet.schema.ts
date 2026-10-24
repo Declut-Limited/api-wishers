@@ -3,7 +3,8 @@ import { HydratedDocument, Schema as MongooseSchema, Types } from 'mongoose';
 
 export type WalletDocument = HydratedDocument<Wallet>;
 
-// One per user. Balances (naira) are changed only by the server — contributions credit, withdrawals debit.
+// One per user, a read-only record of what they've earned (naira). Money never sits here —
+// Paystack settles each share straight to the user's bank; pending turns settled when it lands.
 @Schema({ timestamps: true })
 export class Wallet {
   @Prop({
@@ -14,13 +15,17 @@ export class Wallet {
   })
   owner: Types.ObjectId;
 
-  // Everything ever received.
+  // Everything ever earned (gifts + referrals).
   @Prop({ default: 0 })
   allTimeBalance: number;
 
-  // Available to withdraw.
+  // Paid, not yet in the user's bank.
   @Prop({ default: 0 })
-  remainingBalance: number;
+  pendingBalance: number;
+
+  // Already settled to the user's bank.
+  @Prop({ default: 0 })
+  settledBalance: number;
 
   @Prop({ default: 0 })
   contributedEarning: number;

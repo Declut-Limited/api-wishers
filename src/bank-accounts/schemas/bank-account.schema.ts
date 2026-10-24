@@ -3,7 +3,8 @@ import { HydratedDocument, Schema as MongooseSchema, Types } from 'mongoose';
 
 export type BankAccountDocument = HydratedDocument<BankAccount>;
 
-// One per user — where withdrawals are paid out.
+// One per user — the wisher's Paystack subaccount, where their share of each gift settles.
+// Removing bank details only deactivates it, so re-adding reuses the same subaccount.
 @Schema({ timestamps: true })
 export class BankAccount {
   @Prop({
@@ -27,7 +28,7 @@ export class BankAccount {
   @Prop({ required: true })
   maskedAccountNumber: string;
 
-  // As entered by the user (no account-name lookup).
+  // As the bank holds it, from Paystack's account lookup.
   @Prop({ required: true })
   accountName: string;
 
@@ -36,6 +37,14 @@ export class BankAccount {
 
   @Prop({ default: 'NGN' })
   currency: string;
+
+  // Paystack subaccount (ACCT_…); created once, then updated on every change.
+  @Prop({ unique: true, sparse: true })
+  subaccountCode?: string;
+
+  // false once the user removes their bank details (the subaccount is deactivated too).
+  @Prop({ default: true })
+  active: boolean;
 }
 
 export const BankAccountSchema = SchemaFactory.createForClass(BankAccount);
