@@ -426,15 +426,14 @@ export class PaymentsService {
     return { userId: referrerId, subaccountCode: bank.subaccountCode };
   }
 
-  // Only our own pay site (or localhost outside production) may be the post-payment redirect.
+  // Only our own pay site may be the post-payment redirect. Localhost is allowed too (it can only
+  // ever reach the giver's own machine), so the pay site can be tested locally against the live API.
   private safeCallbackUrl(url?: string): string | undefined {
     if (!url) return undefined;
     try {
       const target = new URL(url);
       const payApp = new URL(this.config.get<string>('PAY_APP_URL')!);
-      const isLocal =
-        this.config.get<string>('NODE_ENV') !== 'production' &&
-        ['localhost', '127.0.0.1'].includes(target.hostname);
+      const isLocal = ['localhost', '127.0.0.1'].includes(target.hostname);
       if (target.origin === payApp.origin || isLocal) return target.toString();
     } catch {
       // fall through
