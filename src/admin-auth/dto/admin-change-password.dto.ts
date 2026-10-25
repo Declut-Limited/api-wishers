@@ -1,0 +1,16 @@
+import { IsString, Matches, MaxLength, MinLength } from 'class-validator';
+
+// Same password rules as users.
+export class AdminChangePasswordDto {
+  @IsString()
+  @MinLength(1)
+  currentPassword: string;
+
+  @IsString()
+  @MinLength(8)
+  @MaxLength(64)
+  @Matches(/^(?=.*[A-Za-z])(?=.*\d).+$/, {
+    message: 'newPassword must contain at least one letter and one number',
+  })
+  newPassword: string;
+}

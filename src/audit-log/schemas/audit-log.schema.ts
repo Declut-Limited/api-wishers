@@ -9,6 +9,7 @@ export enum AuditEntityType {
   WISH_ITEM = 'wish_item',
   BANK_ACCOUNT = 'bank_account',
   PAYMENT = 'payment',
+  ADMIN = 'admin',
 }
 
 // Append-only activity log for the future admin side. entityId has no ref — it points at whichever collection entityType names.

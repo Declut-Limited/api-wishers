@@ -22,6 +22,13 @@ export const envValidationSchema = Joi.object({
   OTP_EXPIRY_MINUTES: Joi.number().default(10),
   PASSWORD_RESET_TOKEN_EXPIRY_MINUTES: Joi.number().default(15),
 
+  // Admin sessions, signed with their own secrets so a user token can never pass as an admin's.
+  // Optional so deploys don't break before they're set; admin routes answer 503 until they are.
+  JWT_ADMIN_ACCESS_SECRET: Joi.string().min(32).allow('').optional(),
+  JWT_ADMIN_ACCESS_EXPIRY: Joi.string().pattern(EXPIRY).default('15m'),
+  JWT_ADMIN_REFRESH_SECRET: Joi.string().min(32).allow('').optional(),
+  JWT_ADMIN_REFRESH_EXPIRY: Joi.string().pattern(EXPIRY).default('7d'),
+
   // Base of the public contribution links, e.g. {PAY_APP_URL}/w/{slug}.
   PAY_APP_URL: Joi.string().uri().default('https://pay.wishers.app'),
 

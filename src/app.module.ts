@@ -20,6 +20,8 @@ import { NotificationsModule } from './notifications/notifications.module';
 import { WalletsModule } from './wallets/wallets.module';
 import { BankAccountsModule } from './bank-accounts/bank-accounts.module';
 import { PaymentsModule } from './payments/payments.module';
+import { AdminAuthModule } from './admin-auth/admin-auth.module';
+import { AdminModule } from './admin/admin.module';
 import { AllExceptionsFilter } from './common/filters/http-exception.filter';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 
@@ -54,6 +56,8 @@ import { ResponseInterceptor } from './common/interceptors/response.interceptor'
     WalletsModule,
     BankAccountsModule,
     PaymentsModule,
+    AdminAuthModule,
+    AdminModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: ThrottlerGuard },
