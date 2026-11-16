@@ -30,7 +30,7 @@ export const envValidationSchema = Joi.object({
   JWT_ADMIN_REFRESH_EXPIRY: Joi.string().pattern(EXPIRY).default('7d'),
 
   // Base of the public contribution links, e.g. {PAY_APP_URL}/w/{slug}.
-  PAY_APP_URL: Joi.string().uri().default('https://pay.wishers.app'),
+  PAY_APP_URL: Joi.string().uri().default('https://pay.wishers.com.ng'),
 
   // Optional — only needed if Expo push security is switched on for the project.
   EXPO_ACCESS_TOKEN: Joi.string().allow('').optional(),

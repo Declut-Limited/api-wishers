@@ -3,7 +3,7 @@ import { Throttle } from '@nestjs/throttler';
 import { PaymentsService } from './payments.service';
 import { InitializeContributionDto } from './dto/initialize-contribution.dto';
 
-// Unauthenticated — the pay.wishers.app checkout. Givers don't have accounts.
+// Unauthenticated — the pay.wishers.com.ng checkout. Givers don't have accounts.
 @Controller('public/payments')
 @Throttle({ default: { limit: 10, ttl: 60_000 } })
 export class PublicPaymentsController {

@@ -2,7 +2,7 @@ import { Controller, Get, Param } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { WishlistsService } from './wishlists.service';
 
-// Unauthenticated — backs the pay.wishers.app contribution pages.
+// Unauthenticated — backs the pay.wishers.com.ng contribution pages.
 @Controller('public/wishlists')
 @Throttle({ default: { limit: 60, ttl: 60_000 } })
 export class PublicWishlistsController {

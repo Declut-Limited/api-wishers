@@ -1,7 +1,7 @@
 const { ASSETS, LINKS, escapeHtml, icon, heading, subtitle, paragraph, detailsTable, button, formatNaira, layout } = require('../layout');
 
 /**
- * Thank-you receipt for the giver, after paying on pay.wishers.app.
+ * Thank-you receipt for the giver, after paying on pay.wishers.com.ng.
  * Givers don't need an account, so this is often their first Wishers email.
  * @param {{ name?: string, ownerName: string, wishTitle: string, amount: number, reference?: string, paidAt?: Date | string | number, ctaUrl?: string }} params
  *   amount is what the giver paid, in naira.

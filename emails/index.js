@@ -1,7 +1,7 @@
 // One import point for every Wishers email template:
 //   const { welcomeEmail } = require('../../emails');
 //   const { subject, html } = welcomeEmail({ name: user.name });
-// mobile/ = app users (wishlist owners), web/ = givers paying on pay.wishers.app.
+// mobile/ = app users (wishlist owners), web/ = givers paying on pay.wishers.com.ng.
 module.exports = {
   ...require('./mobile/welcomeEmail'),
   ...require('./mobile/otpEmail'),

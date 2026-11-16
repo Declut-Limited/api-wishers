@@ -28,10 +28,10 @@ const ASSETS = {
 };
 
 const LINKS = {
-  site: 'https://wishers.app',
-  privacy: 'https://wishers.app/privacy-policy',
-  terms: 'https://wishers.app/terms-of-use',
-  support: 'mailto:support@wishers.app',
+  site: 'https://wishers.com.ng',
+  privacy: 'https://wishers.com.ng/privacy-policy',
+  terms: 'https://wishers.com.ng/terms-of-use',
+  support: 'mailto:support@wishers.com.ng',
 };
 
 // Anything user-supplied (names, wish titles, messages) goes through this before

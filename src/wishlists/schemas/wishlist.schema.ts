@@ -35,7 +35,7 @@ export class Wishlist {
   @Prop({ required: true, unique: true })
   slug: string;
 
-  // Public contribution page, e.g. https://pay.wishers.app/w/{slug}.
+  // Public contribution page, e.g. https://pay.wishers.com.ng/w/{slug}.
   @Prop({ required: true })
   link: string;
 
