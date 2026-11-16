@@ -1,4 +1,5 @@
 import {
+  IsEnum,
   IsOptional,
   IsString,
   IsUrl,
@@ -6,6 +7,7 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator';
+import { NavLayout } from '../schemas/user.schema';
 
 export class UpdateUserDto {
   @IsOptional()
@@ -26,4 +28,9 @@ export class UpdateUserDto {
   @IsOptional()
   @IsUrl({ protocols: ['https'], require_protocol: true })
   image?: string;
+
+  // Web app menu: sidebar or bottom navigation.
+  @IsOptional()
+  @IsEnum(NavLayout)
+  navLayout?: NavLayout;
 }

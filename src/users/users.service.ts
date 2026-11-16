@@ -10,6 +10,7 @@ import { randomInt } from 'crypto';
 import * as bcrypt from 'bcrypt';
 import {
   AccountStatus,
+  NavLayout,
   User,
   UserDocument,
   UserRole,
@@ -35,6 +36,7 @@ export interface UserProfile {
   inviteCode: string;
   referredBy?: string;
   referralsCount: number;
+  navLayout: NavLayout;
   createdAt?: Date;
 }
 
@@ -191,6 +193,7 @@ export class UsersService {
       inviteCode: user.inviteCode,
       referredBy: user.referredBy?.toString(),
       referralsCount: user.referralsCount,
+      navLayout: user.navLayout ?? NavLayout.SIDEBAR,
       createdAt: (user as UserDocument & { createdAt?: Date }).createdAt,
     };
   }

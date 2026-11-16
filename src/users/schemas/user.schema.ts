@@ -9,6 +9,12 @@ export enum AccountStatus {
   DEACTIVATED = 'deactivated',
 }
 
+// How the web app shows its main menu (16 November 2026).
+export enum NavLayout {
+  SIDEBAR = 'sidebar',
+  BOTTOM = 'bottom',
+}
+
 // Admins live in their own Admin collection, never on User.
 export enum UserRole {
   USER = 'user',
@@ -64,6 +70,13 @@ export class User {
 
   @Prop({ default: 0 })
   referralsCount: number;
+
+  @Prop({
+    type: String,
+    enum: Object.values(NavLayout),
+    default: NavLayout.SIDEBAR,
+  })
+  navLayout: NavLayout;
 
   // Expo push token — one per user, overwritten on each login.
   @Prop()
