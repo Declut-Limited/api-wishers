@@ -23,6 +23,7 @@ import { WishlistsModule } from '../wishlists/wishlists.module';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { PaymentsService } from './payments.service';
 import { SettlementsService } from './settlements.service';
+import { PendingPaymentsService } from './pending-payments.service';
 import { PublicPaymentsController } from './public-payments.controller';
 import { PaystackWebhookController } from './paystack-webhook.controller';
 
@@ -44,6 +45,6 @@ import { PaystackWebhookController } from './paystack-webhook.controller';
     NotificationsModule,
   ],
   controllers: [PublicPaymentsController, PaystackWebhookController],
-  providers: [PaymentsService, SettlementsService],
+  providers: [PaymentsService, SettlementsService, PendingPaymentsService],
 })
 export class PaymentsModule {}

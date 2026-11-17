@@ -38,8 +38,10 @@ export interface PaystackInitialized {
 export interface PaystackVerifiedTransaction {
   reference: string;
   status: string;
-  // Kobo.
+  // Kobo. What the giver paid, including any fee Paystack passed on to them.
   amount: number;
+  // Kobo. What we asked for at initialize, before any passed-on fee.
+  requested_amount?: number;
   currency: string;
   paid_at?: string;
 }

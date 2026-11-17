@@ -197,6 +197,40 @@ export class PaymentsService {
     await this.verifyAndCredit(payment);
   }
 
+  // Run every 15 minutes: asks Paystack again about payments still pending (the giver closed the
+  // tab, the webhook never came), and gives up on any still pending after a day.
+  async recheckPending(): Promise<{ checked: number; expired: number }> {
+    const settled = new Date(Date.now() - 5 * 60 * 1000);
+    const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const stuck = await this.paymentModel
+      .find({ status: PaymentStatus.PENDING, createdAt: { $lt: settled } })
+      .sort({ createdAt: 1 })
+      .limit(200)
+      .exec();
+    let expired = 0;
+    for (const payment of stuck) {
+      try {
+        await this.verifyAndCredit(payment);
+      } catch (err) {
+        // Never expire on an error: Paystack or the credit may have failed, not the payment.
+        this.logger.warn(
+          `Re-check of ${payment.reference} failed — ${(err as Error).message}`,
+        );
+        continue;
+      }
+      const createdAt = (payment as unknown as { createdAt: Date }).createdAt;
+      if (createdAt >= dayAgo) continue;
+      const gaveUp = await this.paymentModel
+        .updateOne(
+          { _id: payment._id, status: PaymentStatus.PENDING },
+          { status: PaymentStatus.FAILED, failureReason: 'expired' },
+        )
+        .exec();
+      expired += gaveUp.modifiedCount;
+    }
+    return { checked: stuck.length, expired };
+  }
+
   // The webhook body is never trusted on its own: Paystack is asked again, and the amount checked.
   private async verifyAndCredit(payment: PaymentDocument): Promise<void> {
     const tx = await this.paystack.verifyTransaction(payment.reference);
@@ -211,7 +245,15 @@ export class PaymentsService {
     }
     if (tx.status !== 'success') return;
 
-    if (tx.amount !== payment.totalAmount * 100 || tx.currency !== 'NGN') {
+    // If Paystack passed its own fee on to the giver, amount is higher than what we asked for;
+    // requested_amount is what we initialized, so check that and that at least that much came in.
+    const expected = payment.totalAmount * 100;
+    const requested = tx.requested_amount ?? tx.amount;
+    if (
+      requested !== expected ||
+      tx.amount < expected ||
+      tx.currency !== 'NGN'
+    ) {
       const flagged = await this.paymentModel
         .updateOne(
           { _id: payment._id, status: PaymentStatus.PENDING },

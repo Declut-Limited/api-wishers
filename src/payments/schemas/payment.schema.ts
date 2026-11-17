@@ -98,3 +98,5 @@ export class Payment {
 }
 
 export const PaymentSchema = SchemaFactory.createForClass(Payment);
+// For the stuck-payment re-check (pending, oldest first).
+PaymentSchema.index({ status: 1, createdAt: 1 });
