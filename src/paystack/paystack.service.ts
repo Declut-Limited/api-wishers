@@ -135,6 +135,9 @@ export class PaystackService {
           subaccounts: params.shares,
         },
       },
+      // Paystack's own wording (e.g. "Invalid sharing configuration…") means nothing to a giver;
+      // it's still logged.
+      "We couldn't start this payment. Please try again, or try a different amount.",
     );
   }
 

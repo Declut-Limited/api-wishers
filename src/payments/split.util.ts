@@ -24,17 +24,22 @@ export function totalWithFee(giftAmount: number): number {
   return Math.min(total, giftAmount + FEE_CAP);
 }
 
+// Paystack refuses a split that sends a subaccount less than ₦100.
+export const MIN_SPLIT_SHARE = 100;
+
 // Shares in whole naira; Wishers keeps whatever is left after the wisher and referrer.
+// A referrer's cut under ₦100 can't be paid out, so Wishers keeps it and the referrer gets none.
 export function splitGift(
   giftAmount: number,
   wisherPercentage: number,
   referrerPercentage: number | null,
 ): GiftSplit {
   const wisherShare = Math.round((giftAmount * wisherPercentage) / 100);
-  const referrerShare =
+  const referrerCut =
     referrerPercentage === null
       ? 0
       : Math.round((giftAmount * referrerPercentage) / 100);
+  const referrerShare = referrerCut >= MIN_SPLIT_SHARE ? referrerCut : 0;
   const totalAmount = totalWithFee(giftAmount);
   return {
     giftAmount,

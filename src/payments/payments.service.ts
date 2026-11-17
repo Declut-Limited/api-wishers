@@ -104,6 +104,8 @@ export class PaymentsService {
       settings.wisherSharePercentage,
       referrer ? settings.referrerSharePercentage : null,
     );
+    // Their cut was too small to pay out (Wishers keeps it), so they're left out of this gift.
+    const paidReferrer = split.referrerShare > 0 ? referrer : null;
 
     const reference = `WSH_${Date.now().toString(36)}_${randomBytes(6).toString('hex')}`;
     const payment = await this.paymentModel.create({
@@ -119,10 +121,10 @@ export class PaymentsService {
       wishItemSlug: wishItem.slug,
       wisherShare: split.wisherShare,
       wisherSubaccount: ownerBank.subaccountCode,
-      ...(referrer && {
-        referrer: referrer.userId,
+      ...(paidReferrer && {
+        referrer: paidReferrer.userId,
         referrerShare: split.referrerShare,
-        referrerSubaccount: referrer.subaccountCode,
+        referrerSubaccount: paidReferrer.subaccountCode,
       }),
       appShare: split.appShare,
     });
@@ -137,10 +139,10 @@ export class PaymentsService {
             subaccount: ownerBank.subaccountCode,
             share: split.wisherShare * 100,
           },
-          ...(referrer
+          ...(paidReferrer
             ? [
                 {
-                  subaccount: referrer.subaccountCode,
+                  subaccount: paidReferrer.subaccountCode,
                   share: split.referrerShare * 100,
                 },
               ]
