@@ -91,3 +91,5 @@ export class User {
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
+// Lists a referrer's referrals.
+UserSchema.index({ referredBy: 1 });

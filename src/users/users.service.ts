@@ -18,6 +18,7 @@ import {
 import { UpdateUserDto } from './dto/update-user.dto';
 import { AuditLogService } from '../audit-log/audit-log.service';
 import { AuditEntityType } from '../audit-log/schemas/audit-log.schema';
+import { Paginated, pageWindow } from '../common/utils/paginate.util';
 
 // No 0/O/1/I so codes are easy to read out and type.
 const INVITE_CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -38,6 +39,26 @@ export interface UserProfile {
   referralsCount: number;
   navLayout: NavLayout;
   createdAt?: Date;
+}
+
+export interface ReferredUser {
+  _id: string;
+  name: string;
+  image?: string;
+  email: string;
+  createdAt?: Date;
+}
+
+// "idowu@gmail.com" -> "id***u@gmail.com"; short names keep only the first letter.
+export function maskEmail(email: string): string {
+  const at = email.lastIndexOf('@');
+  if (at < 1) return '***';
+  const local = email.slice(0, at);
+  const shown =
+    local.length <= 3
+      ? `${local[0]}***`
+      : `${local.slice(0, 2)}***${local.slice(-1)}`;
+  return shown + email.slice(at);
 }
 
 @Injectable()
@@ -103,6 +124,36 @@ export class UsersService {
     await this.userModel
       .updateOne({ _id: id }, { $inc: { referralsCount: 1 } })
       .exec();
+  }
+
+  // The people a user referred, newest first. Emails are masked so a referrer can recognise
+  // friends without getting their full address.
+  async listReferrals(
+    id: string,
+    page = 1,
+    limit = 20,
+  ): Promise<Paginated<ReferredUser>> {
+    const filter = { referredBy: id };
+    const { skip } = pageWindow(page, limit);
+    const [users, total] = await Promise.all([
+      this.userModel
+        .find(filter)
+        .select('name email image createdAt')
+        .sort({ createdAt: -1, _id: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean()
+        .exec(),
+      this.userModel.countDocuments(filter),
+    ]);
+    const results = users.map((u) => ({
+      _id: u._id.toString(),
+      name: u.name,
+      image: u.image,
+      email: maskEmail(u.email),
+      createdAt: (u as { createdAt?: Date }).createdAt,
+    }));
+    return { results, total, page, limit };
   }
 
   async setRefreshToken(

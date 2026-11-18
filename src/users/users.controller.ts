@@ -6,12 +6,14 @@ import {
   HttpStatus,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import type { AccessTokenPayload } from '../auth/interfaces/jwt-payload.interface';
+import { PaginationDto } from '../common/dto/pagination.dto';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { DeleteAccountDto } from './dto/delete-account.dto';
@@ -24,6 +26,14 @@ export class UsersController {
   @Get('me')
   getMe(@CurrentUser() user: AccessTokenPayload) {
     return this.usersService.getProfile(user.sub);
+  }
+
+  @Get('me/referrals')
+  listReferrals(
+    @CurrentUser() user: AccessTokenPayload,
+    @Query() query: PaginationDto,
+  ) {
+    return this.usersService.listReferrals(user.sub, query.page, query.limit);
   }
 
   @Patch('me')
