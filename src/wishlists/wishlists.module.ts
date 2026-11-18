@@ -6,6 +6,10 @@ import {
   WishlistVisit,
   WishlistVisitSchema,
 } from './schemas/wishlist-visit.schema';
+import {
+  WishlistView,
+  WishlistViewSchema,
+} from './schemas/wishlist-view.schema';
 import { User, UserSchema } from '../users/schemas/user.schema';
 import { SettingsModule } from '../settings/settings.module';
 import { WishlistsService } from './wishlists.service';
@@ -20,6 +24,7 @@ import { PublicWishlistsController } from './public-wishlists.controller';
       { name: Wishlist.name, schema: WishlistSchema },
       { name: WishItem.name, schema: WishItemSchema },
       { name: WishlistVisit.name, schema: WishlistVisitSchema },
+      { name: WishlistView.name, schema: WishlistViewSchema },
       { name: User.name, schema: UserSchema },
     ]),
     SettingsModule,

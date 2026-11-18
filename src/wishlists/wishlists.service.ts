@@ -10,6 +10,7 @@ import { Model, Types } from 'mongoose';
 import { Wishlist, WishlistDocument } from './schemas/wishlist.schema';
 import { WishItem } from './schemas/wish-item.schema';
 import { WishlistVisit } from './schemas/wishlist-visit.schema';
+import { WishlistView } from './schemas/wishlist-view.schema';
 import { User } from '../users/schemas/user.schema';
 import { CreateWishlistDto } from './dto/create-wishlist.dto';
 import { UpdateWishlistDto } from './dto/update-wishlist.dto';
@@ -23,6 +24,9 @@ import { Paginated, pageWindow } from '../common/utils/paginate.util';
 // Fields a contributor-facing page may see — never the owner's email, phone or tokens.
 const PUBLIC_WISHLIST_FIELDS =
   'title description image slug link totalWishItems totalGoalAmount totalAmountReceived totalContributors isCompleted contributorsImages currentBoostExpiresAt owner createdAt';
+// Crawlers, link-preview fetchers, headless browsers and scripts — never counted as views.
+const BOT_USER_AGENT =
+  /bot|crawl|spider|slurp|preview|facebookexternalhit|whatsapp|headless|phantom|puppeteer|playwright|selenium|lighthouse|curl|wget|python|axios|node-fetch|postman|insomnia|go-http-client|java\//i;
 const PUBLIC_ITEM_FIELDS =
   'title description images slug goalAmount amountReceived contributorCount isCompleted contributorsImages createdAt';
 
@@ -33,6 +37,8 @@ export class WishlistsService {
     @InjectModel(WishItem.name) private readonly wishItemModel: Model<WishItem>,
     @InjectModel(WishlistVisit.name)
     private readonly visitModel: Model<WishlistVisit>,
+    @InjectModel(WishlistView.name)
+    private readonly viewModel: Model<WishlistView>,
     @InjectModel(User.name) private readonly userModel: Model<User>,
     private readonly settingsService: SettingsService,
     private readonly realtime: RealtimeService,
@@ -139,6 +145,7 @@ export class WishlistsService {
     const wishlist = await this.findOwned(ownerId, id);
     await this.wishItemModel.deleteMany({ wishlist: id });
     await this.visitModel.deleteMany({ wishlist: id });
+    await this.viewModel.deleteMany({ wishlist: id });
     await this.wishlistModel.deleteOne({ _id: id });
     await this.auditLog.record({
       entityType: AuditEntityType.WISHLIST,
@@ -179,6 +186,42 @@ export class WishlistsService {
     await this.wishlistModel.updateOne(
       { _id: id },
       { $inc: { visitCount: 1 } },
+    );
+    return { counted: true };
+  }
+
+  // A pay page visitor who stayed 5 seconds. Counts once per visitor per wishlist per Lagos day;
+  // bots are dropped here as well as on the page.
+  async recordPublicView(
+    slug: string,
+    visitorId: string,
+    userAgent = '',
+  ): Promise<{ counted: boolean }> {
+    if (!userAgent || BOT_USER_AGENT.test(userAgent)) return { counted: false };
+
+    const wishlist = await this.wishlistModel
+      .findOne({ slug, active: true })
+      .select('owner')
+      .exec();
+    if (!wishlist) throw new NotFoundException('Wishlist not found');
+
+    // Lagos is UTC+1 all year, so its date is UTC's date an hour ahead.
+    const day = new Date(Date.now() + 60 * 60 * 1000).toISOString().slice(0, 10);
+    const res = await this.viewModel.updateOne(
+      { wishlist: wishlist._id, visitor: visitorId, day },
+      { $setOnInsert: { wishlist: wishlist._id, visitor: visitorId, day } },
+      { upsert: true },
+    );
+    if (!res.upsertedCount) return { counted: false };
+
+    await this.wishlistModel.updateOne(
+      { _id: wishlist._id },
+      { $inc: { visitCount: 1 } },
+    );
+    this.realtime.wishlistChanged(
+      wishlist.owner.toString(),
+      wishlist._id.toString(),
+      'updated',
     );
     return { counted: true };
   }
