@@ -50,6 +50,8 @@ export interface PaystackSettlement {
   id: number;
   status: string;
   settlement_date?: string;
+  // Set on a wisher's (subaccount) payout; null on Wishers' own.
+  subaccount?: { subaccount_code?: string } | null;
 }
 
 // Plain fetch to Paystack's REST API (no SDK). Amounts are in kobo, as Paystack expects.
@@ -148,11 +150,13 @@ export class PaystackService {
     );
   }
 
-  listSettlements(subaccountCode: string, from: Date) {
+  // Every payout since `from`, ours and each subaccount's. (Paystack's subaccount filter takes the
+  // numeric subaccount id, not the code we store, so we filter on our side instead.)
+  listSettlements(from: Date, page = 1) {
     const query = new URLSearchParams({
-      subaccount: subaccountCode,
       from: from.toISOString(),
       perPage: '100',
+      page: String(page),
     });
     return this.request<PaystackSettlement[]>(
       'GET',
@@ -160,6 +164,7 @@ export class PaystackService {
     );
   }
 
+  // Only Wishers' own payouts list their transactions; a subaccount payout returns an empty list.
   listSettlementTransactions(settlementId: number) {
     return this.request<{ reference: string }[]>(
       'GET',
